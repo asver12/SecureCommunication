@@ -1,6 +1,8 @@
 def shift(l, n):
     return l[n:] + l[:n]
 
+def hex_to_int(n):
+    return int("".join(n.split(":")), 16)
 
 def get_hex_position_from_bin(binary_number, i):
     return int(binary_number[2:].zfill(8)[i * 4:i * 4 + 4], base=2)

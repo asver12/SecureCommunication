@@ -99,6 +99,12 @@ class AES():
                     base=2) ^ int(matrix[i][j], base=2))
         return matrix
 
+    def __xor_lists__(self,list_1,list_2):
+        erg = []
+        for i,j in zip(list_1,list_2):
+            erg.append(str(int(i)^int(j)))
+        return erg
+
     def gen_round_key(self, key, round=1, verbose=False):
         if verbose:
             print("________----------------________")
@@ -122,12 +128,12 @@ class AES():
                 print("--------------------------------")
                 print("W[{}] ^ W[{}]:".format(int(((i / 32) - 1) * round), int((i / 32) * round)))
                 print("{}:{}".format(helper.get_split_string_from_list(key[(i - 32):i]), len(key[(i - 32):i])))
-                print("{}:{}".format(helper.get_split_string_from_list(key[i:(i + 32) - 1]),
-                                     len(key[i - 1:(i + 32) - 1])))
-            key[i:(i + 32)] = list(
-                bin(int("".join(key[i:(i + 32)]), base=2) ^ helper.get_int_from_list(key[(i - 31):i])))[2:]
+                print("{}:{}".format(helper.get_split_string_from_list(key[i:(i + 32)]),
+                                     len(key[i:(i + 32)])))
+            key[i:(i + 32)] = self.__xor_lists__(key[(i - 32):i], key[i:(i + 32)])
             if verbose:
-                print("{}:{}".format(helper.get_split_string_from_list(key[i:(i + 32)]), len(key[i:(i + 32)])))
+                print("{}:{}".format(helper.get_split_string_from_list(key[i:(i + 32)]),
+                                     len(key[i:(i + 32)])))
         if verbose:
             print("Key[{}]: {}:{}".format(round, helper.get_split_string_from_list(key), len(key)))
         return "".join(key)
@@ -191,13 +197,6 @@ class AES():
                 erg ^= in_between_1
                 if verbose:
                     print("[={}] ".format(bin(in_between_1)), end="")
-                # erg ^= int(column[j], base=2) * self.mix_columns_matrix[i][j]
-                # if matrix[i][j] == 1:
-                #     erg ^= int(column[j], base=2)
-                # elif matrix[i][j] == 2:
-                #     erg ^= Mathematics.mult_with_2(column[j])
-                # else:
-                #     erg ^= Mathematics.mult_with_3(column[j])
             erg = mathematics.binary_devision(erg, int(self.irreducable_polynome, base=2))[0]
             if verbose:
                 print("= {}".format(erg))
@@ -301,7 +300,7 @@ class AES():
             print("After Roundkey")
             self.print_matrix_as_hex(added_round_key)
 
-        return added_round_key
+        return self.__convert_bin2text__(added_round_key)
 
     def encrypt(self, text, verbose=False):
         converter = self.__convert_text2bin__(text)
@@ -371,7 +370,7 @@ class AES():
             print("After Roundkey")
             self.print_matrix_as_hex(added_round_key)
 
-        return added_round_key
+        return self.__convert_bin2text__(added_round_key)
 
     def print_matrix_as_hex(self, matrix):
         for i in matrix:
@@ -395,10 +394,10 @@ class AES():
         print("After MixColumns:")
         aes.print_matrix_as_hex(after_mix_columns)
 
-        key_gen = aes.gen_round_key(key)
+        key_gen = aes.gen_round_key(key, verbose=True)
         print("New Key:")
         print(helper.get_split_string_from_list(key_gen))
-        encryption = aes.add_roundkey(after_mix_columns, key_gen)
+        encryption = aes.add_roundkey(after_mix_columns, key_gen, verbose=True)
         print("Encryption:")
         aes.print_matrix_as_hex(encryption)
 
@@ -430,9 +429,10 @@ if __name__ == "__main__":
     key = "".join(str(x) for x in startzustand + key)
     aes = AES(key)
     aes.gen_all_round_keys(key, verbose=True)
-    encryption = aes.encrypt("securityisnoeasy", verbose=True)
-    print("Encryption: {}".format(encryption))
-    print(aes.__convert_bin2text__(encryption))
-    decryption = aes.decrypt(aes.__convert_bin2text__(encryption), verbose=True)
-    print(aes.__convert_bin2text__(decryption))
+    # encryption = aes.encrypt("securityisnoeasy", verbose=True)
+    # print("Encryption: {}".format(encryption))
+    # print(encryption)
+    # decryption = aes.decrypt(encryption, verbose=True)
+    # print(decryption)
+    print("Testrechnung: ")
     aes.first_and_last_round("securityisnoeasy",key)

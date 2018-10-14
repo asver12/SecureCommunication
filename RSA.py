@@ -1,47 +1,62 @@
 from bitarray import bitarray
 import mathematics
-import converter
+import helper
 
 
-class RSA():
+class RSA:
     def __init__(self, p, q, n=None, e=None, private_key=None):
-        if isinstance(p, str):
-            self.p = converter.hex_to_int(p)
-        else:
-            self.p = p
-        if isinstance(q, str):
-            self.q = converter.hex_to_int(q)
-        else:
-            self.q = q
-        # berechne n
-        self.n = self.p * self.q
-        if n:
-            if isinstance(n, str):
-                n = converter.hex_to_int(n)
-            self.__check__(self.n, n, "p*q")
+        """
+        Just for example, The regulare case would differ between en- and decryption
 
-        # berechne phi(n)
-        self.phi_n = (self.p - 1) * (self.q - 1)
-        if e:
-            self.e = e
-            self.t = self.__check_e__(self.phi_n, e)
-        else:
+        :param p: Primnumber
+        :param q: Primnumber
+        :param n: public Modular
+        :param e: public Exponent
+        :param private_key: private Key
+        """
+        if p and q:
+            if isinstance(p, str):
+                self.p = helper.hex_to_int(p)
+            else:
+                self.p = p
+            if isinstance(q, str):
+                self.q = helper.hex_to_int(q)
+            else:
+                self.q = q
+            # berechne n
+            self.n = self.p * self.q
+            if n:
+                if isinstance(n, str):
+                    n = helper.hex_to_int(n)
+                self.__check__(self.n, n, "p*q")
+
+            # berechne phi(n)
+            self.phi_n = (self.p - 1) * (self.q - 1)
+            if e:
+                self.e = e
+                self.t = self.__check_e__(self.phi_n, e)
+            # else:
             # todo::
-            self.e, self.t = mathematics.find_gcd_with_1(n)
-        # setze Public-Key
-        self.public_key = (self.n, self.e)
-        # berechne Private-Key
-        self.private_key = self.t % self.phi_n
-        if private_key:
-            if isinstance(private_key, str):
-                private_key = converter.hex_to_int(private_key)
-            self.__check__(self.private_key, private_key, "PrivatKey")
-
-        # encryption with chinese remainder
-        self.c_p = mathematics.extended_gcd(self.q, self.p)[1]
-        self.c_q = mathematics.extended_gcd(self.p, self.q)[1]
-        self.qc_p = self.q * self.c_p
-        self.pc_q = self.p * self.c_q
+            # self.e, self.t = mathematics.find_gcd_with_1(n)
+            # setze Public-Key
+            self.public_key = (self.n, self.e)
+            # berechne Private-Key
+            self.private_key = self.t % self.phi_n
+            if private_key:
+                if isinstance(private_key, str):
+                    private_key = helper.hex_to_int(private_key)
+                self.__check__(self.private_key, private_key, "PrivatKey")
+            # encryption with chinese remainder
+            self.c_p = mathematics.extended_gcd(self.q, self.p)[1]
+            self.c_q = mathematics.extended_gcd(self.p, self.q)[1]
+            self.qc_p = self.q * self.c_p
+            self.pc_q = self.p * self.c_q
+        else:
+            if e and n:
+                self.e = e
+                self.n = helper.hex_to_int(n)
+            else:
+                raise Exception("No valide basis, ether e and n or p and q are needed!")
 
     def __check__(self, n, n_t, text="p*q"):
         if n != n_t:
@@ -72,13 +87,18 @@ class RSA():
         d_p = self.private_key % (self.p - 1)
         d_q = self.private_key % (self.q - 1)
 
-        y_p = (x_p ** d_p) % self.p
-        y_q = (x_q ** d_q) % self.q
+        # y_p = (x_p ** d_p) % self.p
+        y_p = mathematics.square_and_multiply_for_modular(x_p, d_p, self.p, verbose=True)
+        # y_q = (x_q ** d_q) % self.q
+        y_q = mathematics.square_and_multiply_for_modular(x_q, d_q, self.q)
+
         if verbose:
             print("x_p: {}".format(x_p))
             print("x_q: {}".format(x_q))
             print("d_p: {}".format(d_p))
             print("d_q: {}".format(d_q))
+            print("c_p: {}".format(self.c_p))
+            print("c_q: {}".format(self.c_q))
             print("y_p: {}".format(y_p))
             print("y_q: {}".format(y_q))
 
@@ -135,3 +155,13 @@ if __name__ == "__main__":
     print("Decryption: ")
     print(decrypt)
     print(rsa.standard_decrypt(31))
+
+    rsa = RSA(p=19, q=17, e=5)
+    encrypt = rsa.short_public_exponent_encrypt(240)
+    print("Encryption")
+    print(encrypt)
+    print(rsa.standard_encrypton(240))
+    decrypt = rsa.chinese_decrypt(encrypt)
+    print("Decryption: ")
+    print(decrypt)
+    print(rsa.standard_decrypt(encrypt))

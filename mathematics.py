@@ -130,7 +130,7 @@ def calc_mod_inv(e, phi_n):
     pass
 
 
-def square_and_multiply_for_modular(x, exponent, n):
+def square_and_multiply_for_modular(x, exponent, n, verbose=False):
     """
     Optimized Modular-Calculation
 
@@ -140,11 +140,11 @@ def square_and_multiply_for_modular(x, exponent, n):
     :return:
     """
     r = x
-    bin_exp = bin(exponent)
-    for i in range(exponent.bit_length() - 1):
-        r = r ** 2 % n
-        if bin_exp[i + 2] == "1":
-            r = (r * x) % n
+    bin_exp = bin(exponent)[2:][::-1]
+    for i in range(exponent.bit_length()-2,-1,-1):
+        r = (r ** 2) % n
+        if bin_exp[i] == "1":
+            r = r * x % n
     return r
 
 
