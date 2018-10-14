@@ -4,7 +4,8 @@ from RSA import RSA
 from bitarray import bitarray
 import helper
 
-def calculation(message, n, e, d, p, q, startzustand = [1, 1, 1, 1, 0, 0, 0, 0], verbose=True):
+
+def calculation(message, n, e, d, p, q, startzustand=[1, 1, 1, 1, 0, 0, 0, 0], verbose=True):
     ### Alice ###
     ## 1,
     a = bitarray(startzustand)
@@ -16,7 +17,9 @@ def calculation(message, n, e, d, p, q, startzustand = [1, 1, 1, 1, 0, 0, 0, 0],
         print("LFSR-Key: {}".format(helper.get_split_string_from_list(list(key))))
 
     ## 2,
-    rsa = RSA(p="",q="",n=n,e=e)
+    rsa = RSA(p="", q="", n=n, e=e)
+    if verbose:
+        rsa.print_stats()
     c_1 = rsa.short_public_exponent_encrypt(int("".join(str(i) for i in startzustand), base=2))
     if verbose:
         print("RSA Ciphertext: {}".format(c_1))
@@ -29,12 +32,13 @@ def calculation(message, n, e, d, p, q, startzustand = [1, 1, 1, 1, 0, 0, 0, 0],
 
     ### Bob ###
     ## 1,
-    rsa = RSA(p=p,q=q,e=e, private_key="58:7c:9b:d7:cf:bd:2c:c1:c0:ed:92:c3:52:f8:1b:f1:5e:68:be:b0:b3:7c:cd:b0:4e:37:b4:3f:71:11:5a:31")
+    rsa = RSA(p=p, q=q, e=e,
+              private_key=d)
     if verbose:
+        print("--BOB----------")
         print("Decryption....")
     bin_str = bin(rsa.chinese_decrypt(c_1))[2:]
     if verbose:
-        print("--BOB----------")
         print("RSA Plaintext: {}".format(helper.get_split_string_from_list(list(bin_str))))
 
     ## 2,
@@ -52,6 +56,7 @@ def calculation(message, n, e, d, p, q, startzustand = [1, 1, 1, 1, 0, 0, 0, 0],
         print("Message: {}".format(corresponding_message))
     return message
 
+
 if __name__ == "__main__":
     n_bob = "00:af:09:83:ad:69:61:1f:8e:5d:a1:20:6f:ce:63:8f:7b:b7:f0:3e:5a:f5:36:67:88:d7:11:26:a9:45:e9:f8:c7"
     e_bob = (2 ** 16) + 1
@@ -60,4 +65,13 @@ if __name__ == "__main__":
     q = "00:d0:e8:82:78:f0:21:36:a5:84:d6:9f:14:34:2d:39:7f"
     message = "securityisnoeasy"
     startzustand = [1, 1, 1, 1, 0, 0, 0, 0]
-    calculation(message,n_bob,e_bob,d,p,q,startzustand)
+    calculation(message, n_bob, e_bob, d, p, q, startzustand)
+
+    n_bob = "01:43"  # 323
+    e_bob = 5  # 5
+    d = "ad"  # 173
+    p = "13"  # 19
+    q = "11"  # 17
+    message = "securityisnoeasy"
+    startzustand = [1, 1, 1, 1, 0, 0, 0, 0]
+    calculation(message, n_bob, e_bob, d, p, q, startzustand)

@@ -53,6 +53,10 @@ class RSA:
             self.pc_q = self.p * self.c_q
         else:
             if e and n:
+                self.p = None
+                self.q = None
+                self.private_key = None
+                self.phi_n = None
                 self.e = e
                 self.n = helper.hex_to_int(n)
             else:
@@ -124,14 +128,20 @@ class RSA:
         return cyphertext.to_bytes((cyphertext.bit_length() + 7) // 8, 'big').decode()
 
     def print_stats(self):
-        print("p: {}".format(self.p))
-        print("p^-1: {}".format(self.c_p))
-        print("q: {}".format(self.q))
-        print("q^-1: {}".format(self.c_q))
-        print("n: {}".format(self.n))
-        print("Phi: {}".format(self.phi_n))
-        print("e: {}".format(self.e))
-        print("Private Key: {}".format(self.private_key))
+        if self.p:
+            print("p: {}".format(self.p))
+            print("p^-1: {}".format(self.c_p))
+        if self.q:
+            print("q: {}".format(self.q))
+            print("q^-1: {}".format(self.c_q))
+        if self.n:
+            print("n: {}".format(self.n))
+        if self.phi_n:
+            print("Phi: {}".format(self.phi_n))
+        if self.e:
+            print("e: {}".format(self.e))
+        if self.private_key:
+            print("Private Key: {}".format(self.private_key))
 
 
 if __name__ == "__main__":
