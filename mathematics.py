@@ -11,7 +11,7 @@ def gcd(n, e):
     return n
 
 
-def extended_gcd(a, b):
+def extended_gcd(a, b, verbose=False):
     """
     Gibt das Ergebniss des Euklidischen Algorithmus zurück:
     gcd(a, b) = a * s + b * t
@@ -44,7 +44,6 @@ def mult(polynome_1, polynome_2, verbose=False):
     if polynome_1 == 0 or polynome_2 == 0:
         return bin(0)
     new_polynome = [0 for _ in range(polynome_1.bit_length() + polynome_2.bit_length() - 1)]
-    len_poly = len(new_polynome)
     if verbose:
         print("Polynome 1: {}".format(bin(polynome_1)[2:]))
         print("Polynome 2: {}".format(bin(polynome_2)[2:]))
@@ -57,6 +56,7 @@ def mult(polynome_1, polynome_2, verbose=False):
                 "1100 1110"
                 print(helper.get_split_string_from_list(new_polynome))
     return bin(int("".join(str(x) for x in new_polynome), base=2))
+
 
 def add(polynome_1, polynome_2, field=2):
     return [sum(x) % field for x in itertools.zip_longest(polynome_1, polynome_2, fillvalue=0)]
@@ -133,6 +133,7 @@ def calc_mod_inv(e, phi_n):
 def square_and_multiply_for_modular(x, exponent, n, verbose=False):
     """
     Optimized Modular-Calculation
+    Only turn verbose one when using smal examples
 
     :param x: basis-element
     :param exponent: Exponent such that as less 1. as possible in its binary representation
@@ -141,9 +142,16 @@ def square_and_multiply_for_modular(x, exponent, n, verbose=False):
     """
     r = x
     bin_exp = bin(exponent)[2:][::-1]
-    for i in range(exponent.bit_length()-2,-1,-1):
+    if verbose:
+        print("--Square and multiply--")
+        print("{}^{}".format(r, bin_exp))
+    for i in range(exponent.bit_length() - 2, -1, -1):
+        if verbose:
+            print("{}^2 mod {} = {}".format(r, n, (r ** 2) % n))
         r = (r ** 2) % n
         if bin_exp[i] == "1":
+            if verbose:
+                print("[i:{}] {}*{} mod {} = {}".format(i, r, x, n, r * x % n))
             r = r * x % n
     return r
 
@@ -156,4 +164,5 @@ if __name__ == "__main__":
     print("square-and-Multiply: {}[{}]".format(square_and_multiply_for_modular(4, 3, 11), (4 ** 3) % 11))
     print("Polynomial Multiply:{}[{}]".format(mult(2, 236), "111011000"))
     print("Polynomial Multiply:{}[{}]".format(mult(0x03, 0xCE, True), "111011000"))
-    print("Polynomial Division: {}[{}]".format(binary_devision(int("111011000", base=2),int("100011011", base=2),verbose=True),"11000011"))
+    print("Polynomial Division: {}[{}]".format(
+        binary_devision(int("111011000", base=2), int("100011011", base=2), verbose=True), "11000011"))

@@ -72,8 +72,8 @@ class RSA:
             Exception("gcd of {} and {} != 1".format(n, e))
         return t
 
-    def short_public_exponent_encrypt(self, plaintext):
-        return mathematics.square_and_multiply_for_modular(plaintext, self.e, self.n)
+    def short_public_exponent_encrypt(self, plaintext, verbose=False):
+        return mathematics.square_and_multiply_for_modular(plaintext, self.e, self.n, verbose=verbose)
 
     def standard_encrypton(self, plaintext):
         return (plaintext ** self.private_key) % self.public_key[0]
@@ -92,11 +92,12 @@ class RSA:
         d_q = self.private_key % (self.q - 1)
 
         # y_p = (x_p ** d_p) % self.p
-        y_p = mathematics.square_and_multiply_for_modular(x_p, d_p, self.p, verbose=True)
+        y_p = mathematics.square_and_multiply_for_modular(x_p, d_p, self.p, verbose=verbose)
         # y_q = (x_q ** d_q) % self.q
-        y_q = mathematics.square_and_multiply_for_modular(x_q, d_q, self.q)
+        y_q = mathematics.square_and_multiply_for_modular(x_q, d_q, self.q, verbose=verbose)
 
         if verbose:
+            print("--chinese--decrypt--")
             print("x_p: {}".format(x_p))
             print("x_q: {}".format(x_q))
             print("d_p: {}".format(d_p))

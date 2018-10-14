@@ -5,55 +5,48 @@ from bitarray import bitarray
 import helper
 
 
-def calculation(message, n, e, d, p, q, startzustand=[1, 1, 1, 1, 0, 0, 0, 0], verbose=True):
+def calculation(message, n, e, d, p, q, startzustand=[1, 1, 1, 1, 0, 0, 0, 0], verbose=False):
     ### Alice ###
     ## 1,
     a = bitarray(startzustand)
     start_lfsr_alice = LFSR.lfsr(a, [0, 1, 3, 4])
     key = [next(start_lfsr_alice) for _ in range(120)]
     key = "".join(str(x) for x in startzustand + key)
-    if verbose:
-        print("--ALICE--------")
-        print("LFSR-Key: {}".format(helper.get_split_string_from_list(list(key))))
+    print("--ALICE--------")
+    print("LFSR-Key: {}".format(helper.get_split_string_from_list(list(key))))
 
     ## 2,
     rsa = RSA(p="", q="", n=n, e=e)
     if verbose:
         rsa.print_stats()
-    c_1 = rsa.short_public_exponent_encrypt(int("".join(str(i) for i in startzustand), base=2))
-    if verbose:
-        print("RSA Ciphertext: {}".format(c_1))
+    c_1 = rsa.short_public_exponent_encrypt(int("".join(str(i) for i in startzustand), base=2), verbose=verbose)
+    print("RSA Ciphertext: {}".format(c_1))
 
     ## 3,
     aes = AES(key)
-    c_2 = aes.encrypt(message)
-    if verbose:
-        print("AES Ciphertext: {}".format(c_2))
+    c_2 = aes.encrypt(message, verbose=verbose)
+    print("AES Ciphertext: {}".format(c_2))
 
     ### Bob ###
     ## 1,
     rsa = RSA(p=p, q=q, e=e,
               private_key=d)
-    if verbose:
-        print("--BOB----------")
-        print("Decryption....")
-    bin_str = bin(rsa.chinese_decrypt(c_1))[2:]
-    if verbose:
-        print("RSA Plaintext: {}".format(helper.get_split_string_from_list(list(bin_str))))
+    print("--BOB----------")
+    print("Decryption....")
+    bin_str = bin(rsa.chinese_decrypt(c_1, verbose=verbose))[2:]
+    print("RSA Plaintext: {}".format(helper.get_split_string_from_list(list(bin_str))))
 
     ## 2,
     a = bitarray(bin_str)
     start_lfsr_bob = LFSR.lfsr(a, [0, 1, 3, 4])
     key_bob = [next(start_lfsr_bob) for _ in range(120)]
     key_bob = "".join(str(x) for x in list(bin_str) + key_bob)
-    if verbose:
-        print("LFSR-Key: {}".format(helper.get_split_string_from_list(list(bin_str))))
+    print("LFSR-Key: {}".format(helper.get_split_string_from_list(list(bin_str))))
 
     ## 3,
     aes = AES(key_bob)
-    corresponding_message = aes.decrypt(c_2)
-    if verbose:
-        print("Message: {}".format(corresponding_message))
+    corresponding_message = aes.decrypt(c_2, verbose=verbose)
+    print("Message: {}".format(corresponding_message))
     return message
 
 
@@ -74,4 +67,4 @@ if __name__ == "__main__":
     q = "11"  # 17
     message = "securityisnoeasy"
     startzustand = [1, 1, 1, 1, 0, 0, 0, 0]
-    calculation(message, n_bob, e_bob, d, p, q, startzustand)
+    calculation(message, n_bob, e_bob, d, p, q, startzustand, verbose=True)
