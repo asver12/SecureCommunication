@@ -62,7 +62,7 @@ def add(polynome_1, polynome_2, field=2):
     return [sum(x) % field for x in itertools.zip_longest(polynome_1, polynome_2, fillvalue=0)]
 
 
-def binary_devision(zaehler, nenner, verbose=False):
+def binary_division(zaehler, nenner, verbose=False):
     if zaehler == 0 or nenner == 0:
         return bin(0), bin(0)
 
@@ -88,32 +88,6 @@ def binary_devision(zaehler, nenner, verbose=False):
         zaehler ^= teiler
         zaehler_degree = get_degree(zaehler)
     return bin(zaehler), bin(erg)
-
-
-def binary_devision_old(zaehler, nenner, verbose=False):
-    def get_degree(polynome):
-        return polynome.length() - polynome.index(1)
-
-    nenner_deg = get_degree(nenner)
-    zaehler_degree = get_degree(zaehler)
-    erg = zaehler_degree * bitarray("0")
-    print("erg : {}".format(erg))
-    if verbose:
-        print("Grad Nenner: {}".format(nenner_deg))
-        print("Grad Zaehler: {}".format(zaehler_degree))
-
-    while zaehler_degree >= nenner_deg:
-        exponent = zaehler_degree - nenner_deg
-        teiler = bitshift(nenner, exponent)
-        if verbose:
-            print("Exponent: {}".format(exponent))
-            print("Zaehler: {}".format(zaehler))
-            print("Teiler: {}".format(teiler))
-        erg[exponent - 1] = 1
-        zaehler ^= teiler
-        zaehler_degree = get_degree(zaehler)
-    return zaehler, erg
-
 
 def bitshift(binary_number, shift):
     return bitarray(bin((int(binary_number.to01().encode(), base=2) << shift))[2:])

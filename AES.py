@@ -402,7 +402,7 @@ class AES():
         aes.print_matrix_as_hex(encryption)
 
         print("Decryption:")
-        added_round_key = aes.add_roundkey(encryption, key_gen)
+        added_round_key = aes.add_roundkey(encryption, key_gen, verbose=True)
         print("After Roundkey:")
         aes.print_matrix_as_hex(added_round_key)
         after_mix_columns = aes.inv_mix_columns(added_round_key, verbose=True)
