@@ -2,6 +2,7 @@ from functools import reduce
 from bitarray import bitarray
 from operator import itemgetter
 import helper
+
 def lfsr(startzustand,connections):
     """
     Gibt immer wenn aufgerufen den nächsten Zustand eines LFSR-Gatherts zurück

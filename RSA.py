@@ -1,4 +1,3 @@
-from bitarray import bitarray
 import mathematics
 import helper
 

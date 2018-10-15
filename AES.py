@@ -1,6 +1,3 @@
-import binascii
-import numpy as np
-
 import LFSR
 import helper
 import mathematics
