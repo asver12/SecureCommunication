@@ -189,12 +189,12 @@ class AES():
                 if verbose:
                     print("{}*{} ".format(matrix[i][j], column[j]), end="")
                 in_between = int(mathematics.mult(int(column[j], base=2), matrix[i][j]), base=2)
-                in_between_1 = int(mathematics.binary_devision(in_between,
+                in_between_1 = int(mathematics.binary_division(in_between,
                                                                int(self.irreducable_polynome, base=2))[0], base=2)
                 erg ^= in_between_1
                 if verbose:
                     print("[={}] ".format(bin(in_between_1)), end="")
-            erg = mathematics.binary_devision(erg, int(self.irreducable_polynome, base=2))[0]
+            erg = mathematics.binary_division(erg, int(self.irreducable_polynome, base=2))[0]
             if verbose:
                 print("= {}".format(erg))
             new_column.append(erg)
