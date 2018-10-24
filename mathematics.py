@@ -139,4 +139,4 @@ if __name__ == "__main__":
     print("Polynomial Multiply:{}[{}]".format(mult(2, 236), "111011000"))
     print("Polynomial Multiply:{}[{}]".format(mult(0x03, 0xCE, True), "111011000"))
     print("Polynomial Division: {}[{}]".format(
-        binary_devision(int("111011000", base=2), int("100011011", base=2), verbose=True), "11000011"))
+        binary_division(int("111011000", base=2), int("100011011", base=2), verbose=True), "11000011"))
