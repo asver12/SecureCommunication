@@ -1,5 +1,5 @@
 # Generate secure random numbers
-import secrets
+import random
 from bitarray import bitarray
 import itertools
 import helper
@@ -89,6 +89,7 @@ def binary_division(zaehler, nenner, verbose=False):
         zaehler_degree = get_degree(zaehler)
     return bin(zaehler), bin(erg)
 
+
 def bitshift(binary_number, shift):
     return bitarray(bin((int(binary_number.to01().encode(), base=2) << shift))[2:])
 
@@ -130,6 +131,55 @@ def square_and_multiply_for_modular(x, exponent, n, verbose=False):
     return r
 
 
+def miller_rabin_primality_test(prime, securtiy_parameter=11, verbose=False):
+    """
+    Monte-Carlo-Algorithms which only prime and strong pseudoprime numbers pass
+    is not used in practice. Its more likely that something like Baillie-PSW primality test would be choosen
+
+    bit_length  security_parameter
+    250         11
+    300         9
+    400         6
+    500         5
+    600         3
+    ...
+    :param prime: prime to test
+    :return:
+    """
+    if prime % 2 == 0:
+        return False
+    if prime < 6:
+        if prime == 2 or prime == 3 or prime == 5:
+            return True
+        else:
+            return False
+    u = 1
+    r = (prime - 1) // 2
+    while r & 1 == 0:
+        u += 1
+        r //= 2
+
+    if verbose:
+        print("{} - 1 = 2^{}*{}".format(prime,u,r))
+    for _ in range(securtiy_parameter):
+        a = random.randint(1, prime - 3)
+        # if verbose:
+        #     print("Random Number: {}".format(a))
+        z = square_and_multiply_for_modular(a, r, prime)
+        if verbose:
+            print("{} = {}**{} % {}".format(z,a,r,prime))
+        if z != 1 and z != prime - 1:
+            for i in range(1, u):
+                z = square_and_multiply_for_modular(a, 2, prime)
+                if verbose:
+                    print("{} = {}**{} % {}".format(z, a, 2, prime))
+                if z == 1:
+                    return False
+            if z != prime - 1:
+                return False
+    return True
+
+
 if __name__ == "__main__":
     print("gcd[122,22]:{}, {}, {}".format(*extended_gcd(122, 22)))
     print("gcd[120,23]:{}, {}, {}".format(*extended_gcd(120, 23)))
@@ -140,3 +190,6 @@ if __name__ == "__main__":
     print("Polynomial Multiply:{}[{}]".format(mult(0x03, 0xCE, True), "111011000"))
     print("Polynomial Division: {}[{}]".format(
         binary_division(int("111011000", base=2), int("100011011", base=2), verbose=True), "11000011"))
+    print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(91,4,True),False))
+    print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(221, 4, True), False))
+    print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(32416190071, 11, True), True))
