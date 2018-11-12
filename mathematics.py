@@ -1,4 +1,3 @@
-# Generate secure random numbers
 import random
 from bitarray import bitarray
 import itertools
@@ -131,6 +130,69 @@ def square_and_multiply_for_modular(x, exponent, n, verbose=False):
     return r
 
 
+def multiplication_for_cipolla(pair_1, pair_2, w_2, p):
+    return [(pair_1[0] * pair_2[0] + w_2 * pair_1[1] * pair_2[1]) % p,
+            (pair_1[1] * pair_2[0] + pair_1[0] * pair_2[1]) % p]
+
+
+def legendre_symbol(a, p):
+    """
+    compare with "Square Roots from 1; 24, 51, 10 to Dan Shanks from Ezra Brown
+
+    :param a: a relative prime to p
+    :param p: prime
+    :return:
+    """
+    ls = a ** ((p - 1) / 2) % p
+    return -1 if ls == p - 1 else ls
+
+
+def cipollas_algorithm(n, p, verbose=False):
+    """
+    solves a congruence of the form x**2 === n (mod p)
+
+    for more informations check Wikipedia or
+    https://rosettacode.org/wiki/Cipolla%27s_algorithm
+
+    :param n: elem of F_p
+    :param p: odd prime
+    :return: x satisfying x**2 = n
+    """
+    if legendre_symbol(n, p) != 1:
+        return None
+    a = None
+    sample = random.sample(range(p), len(range(p)))
+    for i in sample:
+        if i != 0:
+            if verbose:
+                print("{}: {} = {}".format(i, (i ** 2 - n), legendre_symbol(i, p)))
+            # Legendre symbol
+            if legendre_symbol((i ** 2 - n), p) == -1:
+                a = i
+                if verbose:
+                    print("a = {}".format(a))
+                break
+    if a:
+        w_2 = (a * a - n)
+        x1 = [a, 1]
+        x2 = multiplication_for_cipolla(x1, x1, w_2, p)
+        exponent = int((p + 1) / 2)
+        bin_exp = bin(exponent)[2:]#[::-1]
+        if verbose:
+            print("Exponent: {} | {}".format(exponent, bin_exp))
+        for i in range(1, len(bin_exp)):
+            if verbose:
+                print("i = {}: {}".format(i, bin_exp[i]))
+            if bin_exp[i] == "0":
+                x2 = multiplication_for_cipolla(x2, x1, w_2, p)
+                x1 = multiplication_for_cipolla(x1, x1, w_2, p)
+            else:
+                x1 = multiplication_for_cipolla(x1, x2, w_2, p)
+                x2 = multiplication_for_cipolla(x2, x2, w_2, p)
+        return x1[0], -x1[0] % p
+    return None
+
+
 def miller_rabin_primality_test(prime, securtiy_parameter=11, verbose=False):
     """
     Monte-Carlo-Algorithms which only prime and strong pseudoprime numbers pass
@@ -160,14 +222,14 @@ def miller_rabin_primality_test(prime, securtiy_parameter=11, verbose=False):
         r //= 2
 
     if verbose:
-        print("{} - 1 = 2^{}*{}".format(prime,u,r))
+        print("{} - 1 = 2^{}*{}".format(prime, u, r))
     for _ in range(securtiy_parameter):
         a = random.randint(1, prime - 3)
         # if verbose:
         #     print("Random Number: {}".format(a))
         z = square_and_multiply_for_modular(a, r, prime)
         if verbose:
-            print("{} = {}**{} % {}".format(z,a,r,prime))
+            print("{} = {}**{} % {}".format(z, a, r, prime))
         if z != 1 and z != prime - 1:
             for i in range(1, u):
                 z = square_and_multiply_for_modular(a, 2, prime)
@@ -190,6 +252,7 @@ if __name__ == "__main__":
     print("Polynomial Multiply:{}[{}]".format(mult(0x03, 0xCE, True), "111011000"))
     print("Polynomial Division: {}[{}]".format(
         binary_division(int("111011000", base=2), int("100011011", base=2), verbose=True), "11000011"))
-    print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(91,4,True),False))
+    print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(91, 4, True), False))
     print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(221, 4, True), False))
     print("Miller-Rabin Primality Test: {}[{}]".format(miller_rabin_primality_test(32416190071, 11, True), True))
+    print("Cipollas Algorithm: {}[{}]".format(cipollas_algorithm(10, 13), 9))
