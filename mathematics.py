@@ -156,6 +156,7 @@ def cipollas_algorithm(n, p, verbose=False):
 
     :param n: elem of F_p
     :param p: odd prime
+    :param verbose:
     :return: x satisfying x**2 = n
     """
     if legendre_symbol(n, p) != 1:
@@ -177,7 +178,7 @@ def cipollas_algorithm(n, p, verbose=False):
         x1 = [a, 1]
         x2 = multiplication_for_cipolla(x1, x1, w_2, p)
         exponent = int((p + 1) / 2)
-        bin_exp = bin(exponent)[2:]#[::-1]
+        bin_exp = bin(exponent)[2:]  # [::-1]
         if verbose:
             print("Exponent: {} | {}".format(exponent, bin_exp))
         for i in range(1, len(bin_exp)):
@@ -193,10 +194,10 @@ def cipollas_algorithm(n, p, verbose=False):
     return None
 
 
-def miller_rabin_primality_test(prime, securtiy_parameter=11, verbose=False):
+def miller_rabin_primality_test(prime, security_parameter=11, verbose=False):
     """
     Monte-Carlo-Algorithms which only prime and strong pseudoprime numbers pass
-    is not used in practice. Its more likely that something like Baillie-PSW primality test would be choosen
+    is not used in practice. Its more likely that something like Baillie-PSW primality test would be chosen
 
     bit_length  security_parameter
     250         11
@@ -223,7 +224,7 @@ def miller_rabin_primality_test(prime, securtiy_parameter=11, verbose=False):
 
     if verbose:
         print("{} - 1 = 2^{}*{}".format(prime, u, r))
-    for _ in range(securtiy_parameter):
+    for _ in range(security_parameter):
         a = random.randint(1, prime - 3)
         # if verbose:
         #     print("Random Number: {}".format(a))
